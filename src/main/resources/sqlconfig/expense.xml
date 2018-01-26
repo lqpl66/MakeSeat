@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- DATE_FORMAT -->
+<!-- 时间转字符串：date_format -->
+<!-- 字符串转时间：str_to_date -->
+<!-- DATE_FORMAT(tcb.check_begin_date, '%Y-%m-%d') -->
+<!-- birthday格式：%Y-%m-%d -->
+<!-- 其他时间格式：- %Y-%m-%d %H:%i:%s -->
+<mapper namespace="com.yl.mapper.ExpenseMapper">
+ 
+	<insert id="saveTemporaryOrder" parameterType="Map">
+		insert into
+		temporaryorder(
+		tradeNo,
+		expenseUserNo,
+		userId,
+		paymentAmount,
+		addTime
+		)
+		values(
+		#{tradeNo,jdbcType =
+		VARCHAR},
+		#{expenseUserNo,jdbcType =
+		VARCHAR},
+		#{userId,jdbcType =
+		INTEGER},
+		#{paymentAmount,jdbcType =
+		DECIMAL},
+		str_to_date(#{addTime,jdbcType =
+		DATE},'%Y-%m-%d %H:%i:%s')
+		)
+	</insert>
+	 
+	<select id="getTemporaryOrder" parameterType="Map"
+		resultType="com.yl.bean.TemporaryOrder">
+		select id,
+		tradeNo,
+		expenseUserNo,
+		userId,
+		paymentAmount,
+		DATE_FORMAT(addTime,
+		'%Y-%m-%d %H:%i:%s') as
+		addTime from temporaryorder
+		<trim prefix="where" prefixOverrides="AND">
+			<if test="tradeNo != null ">
+				tradeNo = #{tradeNo}
+			</if>
+				<if test="userId != null ">
+				AND userId = #{userId}
+			</if>
+		</trim>
+	</select>
+	<select id="getOrder" resultType="com.yl.bean.Order"
+		parameterType="Map">
+		select id,
+		orderNo,
+		tradeNo,
+		employeeId,
+		expenseId,
+		postageAmount,
+		goodsAmount,
+		deductionAmount,
+		payableAmount,
+		acount,
+		state,
+		remark,
+		DATE_FORMAT(addTime,
+		'%Y-%m-%d %H:%i:%s') as addTime,
+		DATE_FORMAT(endTime,
+		'%Y-%m-%d %H:%i:%s') as endTime,
+		orderType
+		from
+		`order`
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="userId != null">
+				userId = #{userId}
+			</if>
+			<if test="orderType != null">
+				AND orderType = #{orderType}
+			</if>
+			<if test="orderNo != null and orderNo !=''">
+				AND orderNo = #{orderNo}
+			</if>
+			<if test="tradeNo != null and tradeNo !=''">
+				AND tradeNo = #{tradeNo}
+			</if>
+			<if test="id != null ">
+				AND id = #{id}
+			</if>
+			<if test="status != null ">
+				AND status = #{status}
+			</if>
+			AND isDel = 0
+		</trim>
+		order by addTime desc
+		<choose>
+			<when test="start != null and num!=null">
+				limit #{start}, #{num}
+			</when>
+		</choose>
+		
+	</select>
+	 
+	<insert id="saveExpenseUserlog" parameterType="Map">
+		insert into
+		expenseuserlog(
+		expenseNo,
+		serialNo,
+		employeeId,
+		paymentAmount,
+		paymentType,
+		expenseType,
+		addTime,
+		orderNo,
+		remark,
+		payAblementAmount,
+		transferCharge
+		<if test="out_request_no != null ">
+		  ,out_request_no
+		</if>
+		
+		)
+		values(
+		#{expenseUserNo,jdbcType =
+		VARCHAR},
+		#{serialNo,jdbcType =
+		VARCHAR},
+		#{userId,jdbcType =
+		INTEGER},
+		#{paymentAmount,jdbcType =
+		DECIMAL}, 
+		#{paymentType,jdbcType =
+		INTEGER},
+		#{expenseType,jdbcType =
+		INTEGER}, 
+		str_to_date(#{addTime,jdbcType =
+		DATE},'%Y-%m-%d %H:%i:%s'),
+		#{orderNo,jdbcType =
+		VARCHAR},
+		#{remark,jdbcType =
+		VARCHAR},
+		#{payAblementAmount,jdbcType =
+		DECIMAL}, 
+		#{transferCharge,jdbcType =
+		DECIMAL}
+		<if test="out_request_no != null ">
+		  ,#{out_request_no}
+		</if>
+		)
+	</insert>
+	<update id="updateTemporaryOrder" parameterType="Map">
+		update temporaryorder
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="expenseUserNo !=null  ">
+				expenseUserNo = #{expenseUserNo},
+			</if>
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="tradeNo !=null">
+				tradeNo = #{tradeNo}
+			</if>
+			<if test="userId !=null ">
+				AND userId = #{userId}
+			</if>
+		</trim>
+	</update>
+		<select id="getAdmin" resultType="com.yl.bean.Admin"
+		parameterType="Map">
+		select id,
+		adminCode,
+		adminName,
+		realName,
+		parentId,
+		adminType,
+		fk
+		from
+		admin
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="adminType != null">
+				adminType = #{adminType}
+			</if>
+			<if test="fk != null ">
+				AND fk = #{fk}
+			</if>
+			<if test="id != null ">
+				AND id = #{id}
+			</if>
+			<if test="parentId != null ">
+				AND parentId = #{parentId}
+			</if>
+		</trim>
+	</select>
+	
+	<insert id="saveExpenseSystemlog" parameterType="Map">
+		insert into
+		expensesystemlog(
+		expenseSystemNo,
+		expenseNo, 
+		amount, 
+		addTime
+		)
+		values(
+		#{expenseSystemNo,jdbcType =
+		VARCHAR},
+		#{expenseNo,jdbcType =
+		VARCHAR},  
+		#{amount,jdbcType =
+		DECIMAL}, 
+		str_to_date(#{addTime,jdbcType =
+		DATE},'%Y-%m-%d %H:%i:%s')
+		)
+	</insert>
+	
+	<update id="updateOrder" parameterType="Map">
+		update `order`
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="isDel !=null  ">
+				isDel = #{isDel},
+			</if>
+			<if test="status !=null ">
+				status = #{status},
+			</if>
+			<if test="tradeNo1 !=null ">
+				tradeNo = #{tradeNo1},
+			</if>
+			<if test="endTime !=null ">
+				endTime = STR_TO_DATE(
+				#{endTime,jdbcType= DATE},
+				'%Y-%m-%d %H:%i:%s'),
+			</if>
+			<if test="expenseId !=null  ">
+				expenseId = #{expenseId},
+			</if>
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="id !=null">
+				id = #{id}
+			</if>
+			<if test="userId !=null ">
+				AND userId = #{userId}
+			</if>
+			<if test="orderNo !=null ">
+				AND orderNo = #{orderNo}
+			</if>
+			<if test="tradeNo !=null ">
+				AND tradeNo = #{tradeNo}
+			</if>
+		</trim>
+	</update>
+	
+	
+	<insert id="saveExpenseCardlog" parameterType="Map">
+     	insert into
+		expensecardlog(
+		expenseCardNo,
+		membershipId,
+		serialNo,
+		userId,
+		paymentAmount,
+		userType,
+		paymentType,
+		addTime,openID,
+		refundNo,
+		orderNo,remark,
+		scenicId,operateId,
+		refundReasonId,
+		deductionPrice,
+		expenseType
+		)
+		values(
+		#{expenseCardNo,jdbcType =
+		VARCHAR},
+		#{membershipId,jdbcType =
+		VARCHAR},
+		#{serialNo,jdbcType =
+		VARCHAR},
+		#{userId,jdbcType =
+		INTEGER},
+		#{paymentAmount,jdbcType =
+		DECIMAL},
+		#{userType,jdbcType =
+		INTEGER},
+		#{paymentType,jdbcType =
+		INTEGER},
+		str_to_date(#{addTime,jdbcType =
+		DATE},'%Y-%m-%d %H:%i:%s'),
+		#{openID,jdbcType =
+		VARCHAR},
+		#{refundNo,jdbcType =
+		VARCHAR},
+		#{orderNo,jdbcType =
+		VARCHAR},
+		#{remark,jdbcType =
+		VARCHAR},
+		#{scenicId,jdbcType =
+		INTEGER},
+		#{operateId,jdbcType =
+		INTEGER},
+		#{refundReasonId,jdbcType =
+		INTEGER},
+		#{deductionPrice,jdbcType =
+		DECIMAL},
+		#{expenseType,jdbcType =
+		INTEGER}
+		)
+	</insert>
+	
+	<insert id="saveOrderLog" parameterType="Map">
+		insert into
+		orderlog(
+		orderNo,
+		operateId,
+		status,
+		operateType,
+		operateTime
+		)
+		values(
+		#{orderNo,jdbcType =
+		VARCHAR},
+		#{operateId,jdbcType =
+		INTEGER},
+		#{status,jdbcType =
+		INTEGER},
+		#{operateType,jdbcType =
+		INTEGER},
+		str_to_date(#{operateTime,jdbcType =
+		DATE},'%Y-%m-%d %H:%i:%s')
+		)
+	</insert>
+	<select id="getexpenselog" resultType="com.yl.bean.ExpenseUserLog"
+		parameterType="Map">
+		select
+		eul.expenseNo,
+		eul.serialNo,
+		eul.employeeId,
+		CASE WHEN
+		eul.paymentAmount &gt;=0 THEN CONCAT('+',eul.paymentAmount)
+		WHEN
+		eul.paymentAmount &lt;0
+		THEN eul.paymentAmount
+		END AS
+		paymentAmount,
+		eul.paymentType,
+		eul.expenseType,
+		eul.orderNo,
+		eul.remark,
+		IFNULL(pa.status,0) as status ,
+		date_format(
+		eul.addTime,
+		'%Y-%m-%d %H:%i:%s') as
+		addTime
+		from
+		expenseuserlog eul
+		left
+		join
+		presentapplication
+		pa on pa.expenseNo = eul.expenseNo
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="employeeId != null ">
+				employeeId = #{employeeId}
+			</if>
+			<if test="expenseType != null ">
+				and expenseType = #{expenseType}
+			</if>
+			<if test="orderNo != null ">
+				and orderNo = #{orderNo}
+			</if>
+			<if test="addTime != null ">
+				and TO_DAYS(NOW()) = TO_DAYS(eul.addTime)
+			</if>
+			order by addTime desc
+			<choose>
+				<when test="start != null and num!=null">
+					limit #{start}, #{num}
+				</when>
+				<otherwise>
+					limit 0, 6
+				</otherwise>
+			</choose>
+		</trim>
+	</select>
+		<select id="gettotalAmount" resultType="String" parameterType="Map">
+		select
+		ifnull(CAST(sum(payAblementAmount) AS CHAR),0) as totalAmount
+		from
+		expenseuserlog
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="userId != null ">
+				employeeId = #{userId}
+			</if>
+			<if test="type != null ">
+				<choose>
+					<when test="type == 1">
+						AND (
+						(paymentType=3 and expenseType in(2,3,4,6) )
+						 or ( paymentType=2 and expenseType in(1)  )
+                        )
+					</when>
+				</choose>
+			</if>
+		</trim>
+	</select>
+</mapper>

@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yl.mapper.EmployeeMapper">
+	<!-- 查询人员信息 -->
+	<select id="selectEmplyeeInfo" parameterType="Map" resultType="Map">
+		SELECT em.id id,em.employeeCode
+		employeeCode,em.amount,em.pwd,em.realName,em.idCard,em.idCardAuthentication,
+		em.nickName,em.headImg,em.uuid,
+		DATE_FORMAT(em.uuidExpiry, '%Y-%m-%d %H:%i:%s') uuidExpiry,
+		DATE_FORMAT(em.birthday, '%Y-%m-%d')
+		birthday,em.gender,em.smsCode,
+		DATE_FORMAT(em.smsPwdExpiry , '%Y-%m-%d %H:%i:%s') smsPwdExpiry,
+		DATE_FORMAT(em.loginTime, '%Y-%m-%d %H:%i:%s')
+		loginTime,em.loginCity,
+		DATE_FORMAT(em.createTime, '%Y-%m-%d %H:%i:%s')
+		createTime,em.easemobPwd,em.balance,em.payPwd,em.status,ct.cityName,
+		upa.accountName
+		FROM employee em
+		LEFT JOIN city ct on em.loginCity
+		=ct.id
+		left JOIN userpayaccount upa on upa.userId=em.id and
+		upa.isDefault=1 and
+		upa.isDel=0
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="amount != null and amount!='' ">
+				em.amount=#{amount}
+			</if>
+			<if test="mobile != null and mobile !='' ">
+				and em.amount=#{mobile}
+			</if>
+			<if test="uuid != null and uuid !='' ">
+				and em.uuid=#{uuid}
+			</if>
+			<if test="id != null and id !='' ">
+				and em.id=#{id}
+			</if>
+			<if test="employeeCode != null and employeeCode !='' ">
+				and em.employeeCode=#{employeeCode}
+			</if>
+			<if test="idCard != null and idCard !='' ">
+				and em.idCard=#{idCard}
+			</if>
+			<choose>
+				<when test="getLastId != null and getLastId !='' ">
+					1=1 ORDER BY id DESC limit 1
+				</when>
+				<otherwise>
+					and em.status!=1
+					<choose>
+					   <when test="amount != null or mobile != null or uuid != null  ">
+					     limit 1
+					     </when>
+					   <otherwise>limit 0</otherwise>
+					</choose>
+				</otherwise>
+			</choose>
+
+		</trim>
+		 for update
+	</select>
+	
+<select id="Getuserinfo" resultType="com.yl.bean.Userinfo"
+		parameterType="Map">
+			select
+			pmd.device_token device_token,
+			pmd.mbSystemType mbSystemType ,
+		e.id,
+		e.realName,
+		e.amount ,
+		e.balance balance,
+		e.nickName,
+		e.employeeCode,
+		e.headImg,
+		e.pwd,
+		e.uuid,
+		e.status as userStatus,
+		e.status as status,
+		date_format ( e.uuidExpiry,
+		'%Y-%m-%d %H:%i:%s'
+		)
+		as uuidExpiry, 
+		date_format(e.birthday,'%Y-%m-%d')
+		as
+		birthday,
+		e.gender,
+		e.smsCode,
+		date_format(e.smsPwdExpiry,'%Y-%m-%d %H:%i:%s') as
+		smsPwdExpiry ,
+		date_format(e.loginTime,'%Y-%m-%d %H:%i:%s') as
+		loginTime,
+		e.loginCity,
+		date_format(e.createTime,'%Y-%m-%d %H:%i:%s') as
+		createTime,
+		 
+		e.easemobPwd
+		from employee e
+		left join  pushmessagedevice pmd on e.id=pmd.operateId 
+	 
+		<trim prefix="WHERE" prefixOverrides="AND">
+			 
+			<if test="uuid != null and uuid !=''">
+				  e.uuid = #{uuid}
+			</if>
+			<if test="id != null">
+				AND e.id = #{id}
+			</if>
+		</trim>
+		
+					and e.status!=1
+					limit 1
+	</select>
+	<!-- 保存用户信息 -->
+	<insert id="saveEmployeeInfo">
+		insert IGNORE  into employee
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="employeeCode != null and employeeCode !=''">
+				employeeCode,
+			</if>
+			<if test="mobile != null and mobile !=''">
+				amount,
+			</if>
+			<if test="pwd != null and pwd !=''">
+				pwd,
+			</if>
+			<if test="createTime != null and createTime !=''">
+				createTime,
+			</if>
+			<if test="status != null and status !=''">
+				status,
+			</if>
+			<if test="nickName != null and nickName !=''">
+				nickName,
+			</if>
+
+			<if test="easemobPwd != null and easemobPwd !=''">
+				easemobPwd,
+			</if>
+			<if test="gender != null and gender !=''">
+				gender,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="employeeCode != null and employeeCode !=''">
+				#{employeeCode},
+			</if>
+			<if test="mobile != null and mobile !=''">
+				#{mobile},
+			</if>
+			<if test="pwd != null and pwd !=''">
+				#{pwd},
+			</if>
+			<if test="createTime != null and createTime !=''">
+				#{createTime},
+			</if>
+			<if test="status != null and status !=''">
+				#{status},
+			</if>
+			<if test="nickName != null and nickName !=''">
+				#{nickName},
+			</if>
+			<if test="easemobPwd != null and easemobPwd !=''">
+				#{easemobPwd},
+			</if>
+			<if test="gender != null and gender !=''">
+				#{gender},
+			</if>
+		</trim>
+	</insert>
+	<!-- 修改用户信息 -->
+	<update id="updateEmployeeInfo">
+		update employee
+		<trim prefix="set" suffixOverrides=",">
+			<if test="uuidExpiry != null and uuidExpiry !=''">
+				uuidExpiry=#{uuidExpiry},
+			</if>
+			<if test="uuid != null and uuid !=''">
+				uuid=#{uuid},
+			</if>
+			<if test="loginTime != null and loginTime !=''">
+				loginTime=#{loginTime},
+			</if>
+
+			<if test="smsCode != null and smsCode !=''">
+				smsCode=#{smsCode},
+			</if>
+
+			<if test="smsPwdExpiry != null and smsPwdExpiry !=''">
+				smsPwdExpiry=#{smsPwdExpiry},
+			</if>
+			<if test="pwd != null and pwd !=''">
+				pwd=#{pwd},
+			</if>
+
+			<if test="loginCity != null and loginCity !=''">
+				loginCity=#{loginCity},
+			</if>
+			<if test="acount != null">
+				balance=balance+#{acount},
+			</if>
+			<if test="realName != null and realName !=''">
+				realName=#{realName},
+			</if>
+
+			<if test="idCard != null and idCard !=''">
+				idCard=#{idCard},
+			</if>
+			<if test="idCardAuthentication != null and idCardAuthentication !=''">
+				idCardAuthentication=#{idCardAuthentication},
+			</if>
+			<if test="payPwd != null and payPwd !=''">
+				payPwd=#{payPwd},
+			</if>
+			<if test="headImg != null and headImg !=''">
+				headImg=#{headImg},
+			</if>
+			<if test="gender != null and gender !=''">
+				gender=#{gender},
+			</if>
+			<if test="birthday != null and birthday !=''">
+				birthday=#{birthday},
+			</if>
+		</trim>
+		<trim prefix="where" prefixOverrides="and">
+		
+			 
+			<if test="amount != null and amount !=''">
+				and amount=#{amount}
+			</if>
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="status != null and status !=''">
+				and status=#{status}
+			</if>
+		</trim>
+	</update>
+	<!-- 查询绑定信息 -->
+	<select id="selectBindingAccount" parameterType="Map"
+		resultType="Map">
+		SELECT * from userpayaccount upa
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="userId != null and userId !='' ">
+				upa.userId=#{userId}
+			</if>
+			<if test="accountName != null and accountName !='' ">
+				and upa.accountName=#{accountName}
+			</if>
+
+			<if test="isDefault != null and isDefault !='' ">
+				and upa.isDefault=#{isDefault}
+			</if>
+
+			and upa.isDel=0
+		</trim>
+	</select>
+	<!-- 修改用户信息 -->
+	<update id="updateBindingAccount">
+		update userpayaccount
+		<trim prefix="set" suffixOverrides=",">
+			<if test="accountName != null and accountName !=''">
+				accountName=#{accountName},
+			</if>
+			<if test="status != null and status !=''">
+				status=#{status},
+			</if>
+			<if test="isDel != null and isDel !=''">
+				isDel=#{isDel},
+			</if>
+			<if test="isDefault != null and isDefault !=''">
+				isDefault=#{isDefault},
+			</if>
+
+		</trim>
+		<trim prefix="where" prefixOverrides="and">
+			<if test="id != null and id !=''">
+				and id=#{id}
+			</if>
+			<if test="userId != null and userId !=''">
+				and userId=#{userId}
+			</if>
+		</trim>
+	</update>
+	<!-- 保存账户信息 -->
+	<insert id="saveBindingAccount">
+		insert into userpayaccount
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="userId != null and userId !=''">
+				userId,
+			</if>
+			<if test="accountName != null and accountName !=''">
+				accountName,
+			</if>
+			<if test="status != null and status !=''">
+				status,
+			</if>
+			<if test="typeId != null and typeId !=''">
+				typeId,
+			</if>
+			<if test="isDel != null and isDel !=''">
+				isDel,
+			</if>
+			<if test="addTime != null and addTime !=''">
+				addTime,
+			</if>
+
+			<if test="isDefault != null and isDefault !=''">
+				isDefault,
+			</if>
+			
+			<if test="accountBuyId != null and accountBuyId !=''">
+				accountBuyId,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="userId != null and userId !=''">
+				#{userId},
+			</if>
+			<if test="accountName != null and accountName !=''">
+				#{accountName},
+			</if>
+			<if test="status != null and status !=''">
+				#{status},
+			</if>
+			<if test="typeId != null and typeId !=''">
+				#{typeId},
+			</if>
+			<if test="isDel != null and isDel !=''">
+				#{isDel},
+			</if>
+			<if test="addTime != null and addTime !=''">
+				#{addTime},
+			</if>
+
+			<if test="isDefault != null and isDefault !=''">
+				#{isDefault},
+			</if>
+			
+			<if test="accountBuyId != null and accountBuyId !=''">
+				#{accountBuyId},
+			</if>
+		</trim>
+	</insert>
+	<!-- 获取账户明细统计 -->
+	<select id="getAccountDetilTotal" parameterType="Map"
+		resultType="Int">
+		SELECT count(*)
+		from expenseuserlog eul
+		LEFT JOIN
+		employee em on
+		em.id=eul.employeeId
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="uuid != null and uuid !='' ">
+				em.uuid=#{uuid}
+			</if>
+		</trim>
+	</select>
+	<!-- 获取账户明细 -->
+	<select id="getAccountDetil" parameterType="Map" resultType="Map">
+		SELECT
+		eul.expenseNo,eul.serialNo,eul.employeeId,eul.paymentAmount,eul.paymentType,eul.expenseType,
+		eul.orderNo,eul.remark,DATE_FORMAT(eul.addTime, '%Y-%m-%d %H:%i:%s')
+		addtime
+		from expenseuserlog eul
+		LEFT JOIN
+		employee em on
+		em.id=eul.employeeId
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="uuid != null and uuid !='' ">
+				em.uuid=#{uuid}
+			</if>
+		</trim>
+		<choose>
+			<when
+				test="paramSidx !=null and paramSidx !=''   and  paramSord !=null and paramSord != '' ">
+				ORDER BY ${paramSidx} ${paramSord}
+			</when>
+			<otherwise>
+				ORDER BY eul.addTime desc
+			</otherwise>
+		</choose>
+		limit #{beginNum},#{pageSize}
+	</select>
+	<!-- 获取用户绑定设备信息 -->
+	<select id="getUserDeviceInfo" parameterType="Map" resultType="Map">
+		SELECT pd.id,pd.device_token,pd.mbSystemType,pd.operateId
+		from
+		pushmessagedevice pd
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="operateId != null and operateId !='' ">
+				pd.operateId=#{operateId}
+			</if>
+		</trim>
+		limit 1
+	</select>
+	
+	<select id="getUserPayAccount" resultType="com.yl.bean.UserPayAccount"
+		parameterType="Map">
+		select id as
+		accountId,accountName,status,typeId,userId,accountBuyId
+		from userpayaccount
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="userId !=null">
+				userId = #{userId}
+			</if>
+			<if test="accountId !=null">
+				AND id = #{accountId}
+			</if>
+			<if test="accountBuyId !=null">
+				AND accountBuyId = #{accountBuyId}
+			</if>
+			<if test="accountName !=null">
+				AND accountName = #{accountName}
+			</if>
+			<if test="typeId !=null">
+				AND typeId = #{typeId}
+			</if>
+			<if test="isDel !=null">
+				AND isDel = #{isDel}
+			</if>
+			<if test="isDefault !=null">
+				AND isDefault = #{isDefault}
+			</if>
+		</trim>
+	</select>
+	
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- DATE_FORMAT -->
+<!-- 时间转字符串：date_format -->
+<!-- 字符串转时间：str_to_date -->
+<!-- DATE_FORMAT(tcb.check_begin_date, '%Y-%m-%d') -->
+<!-- birthday格式：%Y-%m-%d -->
+<!-- 其他时间格式：- %Y-%m-%d %H:%i:%s -->
+<!-- date_format(createTime,'%Y-%m-%d %H:%i:%s') as -->
+<!-- createTime, -->
+<!-- str_to_date(#{uuIDExpiry,jdbcType = -->
+<!-- DATE},'%Y-%m-%d %H:%i:%s') -->
+<mapper namespace="com.yl.mapper.AdMapper">
+	<select id="getAdList" parameterType="Map" resultType="com.yl.bean.Advertisement">
+		SELECT a.* FROM ad a
+		left join city c on c.id =a.cityId
+		<trim prefix="WHERE" prefixOverrides="AND">
+			a.isDel = 0
+			AND TO_DAYS(a.endDate) &gt;=TO_DAYS(NOW())
+			AND
+			TO_DAYS(a.startDate) &lt;= TO_DAYS(NOW())
+			<if test="cityName !=null ">
+				AND INSTR(c.cityName,#{cityName})
+			</if>
+			<if test="cityNameNo !=null ">
+				AND !INSTR(c.cityName,#{cityNameNo})
+			</if>
+		</trim>
+		limit #{num}
+	</select>
+
+	<select id="getBannerList" parameterType="Map"
+		resultType="com.yl.bean.Advertisement">
+		SELECT * FROM banner
+		where
+		isDel = 0
+		AND TO_DAYS(endDate)
+		&gt;=TO_DAYS(NOW())
+		AND
+		TO_DAYS(startDate) &lt;= TO_DAYS(NOW())
+	</select>
+</mapper>

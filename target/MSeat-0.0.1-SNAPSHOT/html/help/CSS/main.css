@@ -1,0 +1,90 @@
+﻿
+body {
+    background-color: #f8f8f8 !important;
+}
+
+.pageMain {
+    width: 100%;
+    font-family: 微软雅黑;
+    color: #282828;
+}
+
+.helpTitle {
+    width: 100%;
+    padding: 20px 20px;
+    background-color: #f8f8f8;
+    font-size: 13px;
+    font-weight: 100 !important;
+    /*margin-top:10px;*/
+}
+
+    .helpTitle span {
+        border-left: 4px solid #FFC721;
+        padding-left: 10px;
+    }
+
+.panel-group {
+    padding: 0px 0px 0px 20px !important;
+    background-color: #fff !important;
+}
+
+.panel {
+    border: 0px !important;
+    box-shadow: 0px 0px 0px !important;
+}
+
+.panel-title {
+    display: flex;
+    display: -webkit-box;    
+    display: -moz-box;       
+    display: -ms-flexbox;    
+    display: flexbox;   
+    flex-direction: row;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+
+    justify-content: space-between;
+    -webkit-box-pack:justify;
+    -webkit-flex-pack:justify;
+    -moz-box-pack:justify;
+    -ms-flex-pack:justify;
+    font-size: 14px !important;
+    font-weight: 100 !important;
+}
+
+    .panel-title .icon {
+        color: #D7D7D7 !important;
+    }
+.panel-heading {
+    background-color: #fff !important;
+    padding: 10px 20px 10px 0px !important;
+    border: 0px !important;
+    border-bottom: 1px solid #dddddd !important;
+}
+
+.panel-body {
+    border: 0px !important;
+    font-size: 13px !important;
+    font-weight: 100 !important;
+    border-bottom: 1px solid #ddd !important;
+    line-height: 150%;
+    text-indent: 2em;
+}
+.panel-title *{
+   font-family: Helvetica, Tahoma, Arial, STXihei, "华文细黑", Heiti,"黑体", "Microsoft YaHei", "微软雅黑", SimSun, "宋体", sans-serif}
+.panel-body *{
+	color: #787878; 
+}
+.panel-body img{
+    margin:0 auto;
+}
+.helpFoot{
+    width:100%;
+    position:fixed;
+    bottom:0px;
+    background-color:#EBCD47;
+    height:90px;
+    line-height:90px;
+    text-align:center;
+    
+}

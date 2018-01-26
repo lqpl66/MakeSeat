@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yl.mapper.MessageMapper">
+    
+    <insert id="savePushmessagelog">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="pmId">
+			SELECT LAST_INSERT_ID() AS pmId
+		 </selectKey> 
+        insert into pushmessagelog
+        <trim  prefix="(" suffix=")"  suffixOverrides=",">
+           <if test="messageType != null and messageType !=''">
+		     messageType,
+		  </if> 
+           <if test="messageContent != null and messageContent !=''">
+		     messageContent,
+		  </if>  
+          
+           <if test="addTime != null and addTime !=''">
+		     addTime,
+		  </if> 
+             
+           <if test="sysMSGId != null and sysMSGId !=''">
+		     sysMSGId,
+		  </if>  
+        </trim>
+        <trim  prefix="values (" suffix=")"  suffixOverrides=",">
+        
+           <if test="messageType != null and messageType !=''">
+		     #{messageType},
+		  </if> 
+           <if test="messageContent != null and messageContent !=''">
+		     #{messageContent},
+		  </if>  
+           
+            
+           <if test="addTime != null and addTime !=''">
+		     #{addTime},
+		  </if>  
+		  
+           <if test="sysMSGId != null and sysMSGId !=''">
+		     #{sysMSGId},
+		  </if>  
+        </trim>
+    </insert> 
+    <insert id="saveSystemMessage">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="sysMSGId">
+			SELECT LAST_INSERT_ID() AS sysMSGId
+		 </selectKey> 
+        insert into systemmessage
+        <trim  prefix="(" suffix=")"  suffixOverrides=",">
+           <if test="messageType != null and messageType !=''">
+		     messageType,
+		  </if> 
+           <if test="messageTitle != null and messageTitle !=''">
+		     messageTitle,
+		  </if>  
+           <if test="messageImage != null and messageImage !=''">
+		     messageImage,
+		  </if> 
+           <if test="messageContent != null and messageContent !=''">
+		     messageContent,
+		  </if> 
+           <if test="trainNo != null and trainNo !=''">
+		     trainNo,
+		  </if> 
+           <if test="site != null and site !=''">
+		     site,
+		  </if> 
+           <if test="dispatchTime != null and dispatchTime !=''">
+		     dispatchTime,
+		  </if> 
+           <if test="url != null and url !=''">
+		     url,
+		  </if> 
+           <if test="showType != null and showType !=''">
+		     showType,
+		  </if> 
+           <if test="addTime != null and addTime !=''">
+		     addTime,
+		  </if> 
+           <if test="isDel != null and isDel !=''">
+		     isDel,
+		  </if> 
+           <if test="pmId != null and pmId !=''">
+		     pmId,
+		  </if> 
+           <if test="orderNo != null and orderNo !=''">
+		     orderNo,
+		  </if> 
+           <if test="orderSellNo != null and orderSellNo !=''">
+		     orderSellNo,
+		  </if> 
+           <if test="orderShowType != null and orderShowType !=''">
+		     orderShowType,
+		  </if> 
+        </trim>
+        <trim  prefix="values (" suffix=")"  suffixOverrides=",">
+        <if test="messageType != null and messageType !=''">
+		     #{messageType},
+		  </if> 
+           <if test="messageTitle != null and messageTitle !=''">
+		     #{messageTitle},
+		  </if>  
+           <if test="messageImage != null and messageImage !=''">
+		     #{messageImage},
+		  </if> 
+           <if test="messageContent != null and messageContent !=''">
+		     #{messageContent},
+		  </if> 
+           <if test="trainNo != null and trainNo !=''">
+		     #{trainNo},
+		  </if> 
+           <if test="site != null and site !=''">
+		     #{site},
+		  </if> 
+           <if test="dispatchTime != null and dispatchTime !=''">
+		     #{dispatchTime},
+		  </if> 
+           <if test="url != null and url !=''">
+		     #{url},
+		  </if> 
+           <if test="showType != null and showType !=''">
+		     #{showType},
+		  </if> 
+           <if test="addTime != null and addTime !=''">
+		     #{addTime},
+		  </if> 
+           <if test="isDel != null and isDel !=''">
+		     #{isDel},
+		  </if> 
+           <if test="pmId != null and pmId !=''">
+		     #{pmId},
+		  </if> 
+           <if test="orderNo != null and orderNo !=''">
+		     #{orderNo},
+		  </if> 
+		  
+           <if test="orderSellNo != null and orderSellNo !=''">
+		     #{orderSellNo},
+		  </if> 
+           <if test="orderShowType != null and orderShowType !=''">
+		     #{orderShowType},
+		  </if> 
+        </trim>
+    </insert> 
+    <insert id="saveSystemMessageStatus">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID() AS id
+		 </selectKey> 
+        insert into systemmessageStatus
+        <trim  prefix="(" suffix=")"  suffixOverrides=",">
+           <if test="userId != null and userId !=''">
+		     userId,
+		  </if> 
+           <if test="sysMSGId != null and sysMSGId !=''">
+		     sysMSGId,
+		  </if>  
+           <if test="isRead != null and isRead !=''">
+		     isRead,
+		  </if>  
+           <if test="readTime != null and readTime !=''">
+		     readTime,
+		  </if>  
+           <if test="messageType != null and messageType !=''">
+		     messageType,
+		  </if>  
+           <if test="mbSystemType != null and mbSystemType !=''">
+		     mbSystemType,
+		  </if>  
+           <if test="device_token != null and device_token !=''">
+		     device_token,
+		  </if>  
+        </trim>
+        <trim  prefix="values (" suffix=")"  suffixOverrides=",">
+        <if test="userId != null and userId !=''">
+		     #{userId},
+		  </if> 
+           <if test="sysMSGId != null and sysMSGId !=''">
+		     #{sysMSGId},
+		  </if>  
+           <if test="isRead != null and isRead !=''">
+		     #{isRead},
+		  </if>  
+           <if test="readTime != null and readTime !=''">
+		     #{readTime},
+		  </if>  
+           <if test="messageType != null and messageType !=''">
+		     #{messageType},
+		  </if>  
+           <if test="mbSystemType != null and mbSystemType !=''">
+		     #{mbSystemType},
+		  </if>  
+           <if test="device_token != null and device_token !=''">
+		     #{device_token},
+		  </if>  
+        </trim>
+    </insert> 
+    
+    	
+	<insert id="savePushMessageDevice" parameterType="Map">
+		insert into
+		pushmessagedevice
+		( 
+		device_token,
+		mbSystemType,
+		operateId, 
+		addTime,
+		modifyTime )
+		values(
+		 
+		#{device_token,jdbcType = VARCHAR},
+		#{mbSystemType,jdbcType =INTEGER},
+		#{operateId,jdbcType =INTEGER}, 
+		str_to_date(#{addTime,jdbcType =
+		DATE},
+		'%Y-%m-%d %H:%i:%s'),
+		str_to_date(#{modifyTime,jdbcType = DATE},
+		'%Y-%m-%d %H:%i:%s')
+		)
+	</insert>
+	
+	<select id="getPushMessageDevice" parameterType="Map"
+		resultType="com.yl.bean.PushMessageDevice">
+		select
+		placeX,
+		placeY,
+		device_token,
+		mbSystemType,
+		operateId 
+		from
+		pushmessagedevice
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="device_token!=null">
+				device_token = #{device_token}
+			</if>
+			<if test="operateId!=null and operateId>0">
+				AND operateId = #{operateId}
+			</if>
+			<if test="mbSystemType !=null and mbSystemType >0">
+				AND mbSystemType = #{mbSystemType}
+			</if> 
+		</trim>
+	</select>
+
+	<update id="updatePushMessageDevice" parameterType="Map">
+		update pushmessagedevice
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="placeX != null">
+				placeX = #{placeX},
+			</if>
+			<if test="placeY != null">
+				placeY = #{placeY},
+			</if>
+			<if test="operateId1 != null">
+				operateId = #{operateId1},
+			</if> 
+			<if test="modifyTime !=null">
+				modifyTime = str_to_date(#{modifyTime,jdbcType = DATE},
+				'%Y-%m-%d %H:%i:%s'),
+			</if>
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="device_token != null">
+				device_token = #{device_token}
+			</if>
+			<if test="mbSystemType != null">
+				AND mbSystemType = #{mbSystemType}
+			</if>
+			<if test="operateId != null">
+				AND operateId = #{operateId}
+			</if> 
+		</trim>
+	</update>
+	
+	<select id="getMessageNum" resultType="Map" parameterType="Map">
+	   select (
+		  SELECT 
+		   count(*)+IFNULL((SELECT   systemInfo_isRead  
+		   from systemmessageDeviceStatus 
+		   where device_token=#{device_token} 
+		   and SI_aeadDate>=DATE_FORMAT(NOW(), '%Y-%m-%d') ) ,0) t
+		   
+		   from systemmessage sysm
+			LEFT JOIN systemmessageStatus sysms on sysm.id=sysms.sysMSGId
+			<trim prefix="WHERE" prefixOverrides="AND">
+				 <choose>
+			      <when test=" userId != null  ">
+					AND sysms.userId = #{userId}
+			      </when>
+			      <otherwise>
+					AND sysms.userId = 0
+			      </otherwise>
+			   </choose>
+				AND  sysm.isDel = 0 AND  sysm.isDel = 0 and sysms.isRead=0 
+				and sysm.messageType in(0)
+			</trim>
+	   ) systemMSGTotal , 
+	   (
+			SELECT COUNT(*) from systemmessage sysm
+			LEFT JOIN systemmessageStatus sysms on sysm.id=sysms.sysMSGId
+			<trim prefix="WHERE" prefixOverrides="AND">
+				 <choose>
+			      <when test=" userId != null  ">
+					AND sysms.userId = #{userId}
+			      </when>
+			      <otherwise>
+					AND sysms.userId = 0
+			      </otherwise>
+			   </choose>
+				AND  sysm.isDel = 0 and sysms.isRead=0 
+				and sysm.messageType in(1)
+				and sysms.isRead!=1 and sysms.isDel!=1 
+			</trim>
+		) orderMSGTotal ,
+	   (
+			SELECT COUNT(*) from systemmessage sysm
+			LEFT JOIN systemmessageStatus sysms on sysm.id=sysms.sysMSGId
+			<trim prefix="WHERE" prefixOverrides="AND">
+				<choose>
+			      <when test=" userId != null  ">
+					AND sysms.userId = #{userId}
+			      </when>
+			      <otherwise>
+			       
+					AND sysms.userId = 0
+			      </otherwise>
+			   </choose>
+				AND  sysm.isDel = 0 and sysms.isRead=0 
+				and sysm.messageType in(3)
+				and sysms.isRead!=1 and sysms.isDel!=1 
+			</trim>
+		) accountChangeMSGTotal,
+		(
+		 SELECT    
+		 ifnull(sum(activityInfo_isRead),0) as t from systemmessageDeviceStatus 
+		 where device_token=#{device_token}  
+		 and SI_aeadDate&gt;=DATE_FORMAT(NOW(), '%Y-%m-%d') 
+				
+		 
+	   ) acivityTotal 
+	</select>
+	
+ 
+	<select id="getMessageMore" resultType="com.yl.bean.Message"
+		parameterType="Map">
+		select
+		sysm.flag,
+		sysm.intro,
+		sysms.id sysmsId,
+		sysm.id sysmId,
+		sysm.messageTitle,
+		sysm.messageType,
+		sysm.messageContent,
+		sysm.messageImage,
+		sysm.trainNo,
+		sysm.orderNo,
+		sysm.orderSellNo,
+		sysm.site,
+		sysm.dispatchTime,
+		sysm.showType,
+		sysm.url,
+		date_format(
+		sysm.addTime, '%Y-%m-%d %H:%i:%s'
+		) as
+		 addTime,
+		date_format(
+		sysm.addTime, '%Y年%m月%d日'
+		) as
+		 date,
+		date_format(
+		sysm.addTime, '%H:%i'
+		) as
+		 time,
+		sysms.isRead,
+		date_format(
+		os.loseTime, '%Y-%m-%d %H:%i:%s'
+		) as
+		 loseTime
+		,
+        os.isClose
+
+		from
+		systemmessage sysm
+		left join systemmessageStatus sysms on sysm.id=sysms.sysMSGId  
+			AND sysms.isDel = 0
+		LEFT JOIN orderSell os on os.orderSellNo=sysm.orderSellNo
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="messageType != null ">
+				sysm.messageType = #{messageType}
+			</if>
+			<choose>
+			  <when test="operateId != null  and operateId != '' ">
+			     and (sysms.userId  = #{operateId} or sysms.userId  is null )
+			  </when>
+			  <otherwise>
+			      and  sysms.userId  is null 
+			  </otherwise>
+			</choose>
+			
+			<if test="device_token != null ">
+				AND sysm.device_token = #{device_token}
+			</if>
+			<if test="mbSystemType != null ">
+				AND sysm.mbSystemType = #{mbSystemType}
+			</if>
+			<if test="sysmId != null ">
+				AND sysm.id = #{sysmId}
+			</if>
+			<if test="sysmsId != null ">
+				AND sysms.id = #{sysmsId}
+			</if>
+			AND sysm.isDel = 0
+			
+			<if test="messageType ==0 ">
+				and  (sysm.aeadTime is null  or   sysm.beginTime is null   or 
+				         (   sysm.beginTime&lt;=DATE_FORMAT(NOW(), '%Y-%m-%d') 
+				            and sysm.aeadTime&gt;=DATE_FORMAT(NOW(), '%Y-%m-%d')  
+				         )
+				      ) 
+			</if>
+			
+			<if test="messageType ==2 ">
+				and  (  sysm.beginTime&lt;=DATE_FORMAT(NOW(), '%Y-%m-%d')  
+				       and sysm.aeadTime&gt;=DATE_FORMAT(NOW(), '%Y-%m-%d')  ) 
+			</if>
+			order by sysm.addTime desc
+			<choose>
+				<when test="start != null and num!=null">
+					limit #{start}, #{num}
+				</when>
+				<otherwise>
+					limit 0, 6
+				</otherwise>
+			</choose>
+		</trim>
+	</select>
+
+	<update id="updateMessage" parameterType="Map">
+		update systemmessage
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="isDel !=null">
+				isDel = #{isDel},
+			</if>
+			<if test="isRead !=null">
+				isRead = #{isRead}
+			</if>
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="operateId !=null">
+				operateId = #{operateId}
+			</if>
+			<if test="operateType !=null">
+				AND operateType = #{operateType}
+			</if>
+			<if test="id !=null">
+				AND id = #{id}
+			</if>
+			<if test="messageType !=null">
+				AND messageType = #{messageType}
+			</if>
+			<if test="device_token !=null">
+				AND device_token = #{device_token}
+			</if>
+		</trim>
+	</update>
+	<update id="updateMessageMore" parameterType="Map">
+		update systemmessageStatus
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="isDel !=null">
+				isDel = #{isDel},
+			</if>
+			<if test="isRead !=null">
+				isRead = #{isRead},
+			</if>
+			readTime=now()
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="operateId !=null">
+				userId = #{operateId}
+			</if>
+
+			<if test="id !=null">
+				AND id = #{id}
+			</if>
+			<if test="messageType !=null">
+				AND messageType = #{messageType}
+			</if>
+			
+		</trim>
+		and isRead!=1 and isDel!=1
+	</update>
+	
+	 <update id="systemmessageDeviceStatus" parameterType="Map">
+		update systemmessageDeviceStatus
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="isDel !=null">
+				isDel = #{isDel},
+			</if>
+			<if test="isRead !=null">
+				isRead = #{isRead},
+			</if>
+			readTime=now()
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="operateId !=null">
+				userId = #{operateId}
+			</if>
+
+			<if test="id !=null">
+				AND id = #{id}
+			</if>
+			<if test="messageType !=null">
+				AND messageType = #{messageType}
+			</if>
+			
+		</trim>
+		and isRead!=1 and isDel!=1
+	</update>
+	<update id="updateSystemmessageDeviceStatus">
+		update 
+		systemmessageDeviceStatus
+		<trim prefix="SET" suffixOverrides=",">
+				<if test="systemInfo_isRead !=null">
+					systemInfo_isRead = #{systemInfo_isRead},
+				</if>
+				<if test="activityInfo_isRead !=null">
+					activityInfo_isRead = #{activityInfo_isRead},
+				</if>
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="device_token !=null">
+				device_token = #{device_token}
+			</if>
+			<if test="mbSystemType !=null">
+				AND mbSystemType = #{mbSystemType}
+			</if>
+		</trim>
+	</update>
+	<select id="getMSGTotalOfNewUser" resultType="Map">
+		SELECT 
+		date_format(MAX(sysm.aeadTime),'%Y-%m-%d')
+		 sysmMaxAeadTime,
+		count(*) sysmNum,
+		( SELECT count(*)   from systemmessage where messageType=2 
+		 and beginTime&lt;=DATE_FORMAT(NOW(), '%Y-%m-%d')
+		and aeadtime&gt;=DATE_FORMAT(NOW(), '%Y-%m-%d')
+		) acmNum,
+		( SELECT date_format(MAX(aeadTime),'%Y-%m-%d')  from systemmessage where messageType=2 
+		 and beginTime&lt;=DATE_FORMAT(NOW(), '%Y-%m-%d')
+		and aeadtime&gt;=DATE_FORMAT(NOW(), '%Y-%m-%d')
+		) acmMaxAeadTime
+		 from systemmessage sysm
+		LEFT JOIN systemmessageStatus  sysms on sysm.id= sysms.sysMSGId
+		 where  sysm.messageType=0 
+		  and sysm.beginTime&lt;=DATE_FORMAT(NOW(), '%Y-%m-%d')
+		 and sysm.aeadtime&gt;=DATE_FORMAT(NOW(), '%Y-%m-%d') and  sysms.userId is null
+		 limit 1
+	</select>
+	
+	<insert id="saveSystemmessageDeviceStatus" parameterType="map">
+	    insert into systemmessageDeviceStatus
+	    <trim prefix="(" suffix=")" suffixOverrides=",">
+	       <if test="mbSystemType != null and mbSystemType !=''">
+	        mbSystemType,
+	       </if>
+	       <if test="device_token != null and device_token !=''">
+	        device_token,
+	       </if>
+	       <if test="systemInfo_isRead != null ">
+	        systemInfo_isRead,
+	       </if>
+	       <if test="SI_aeadDate != null and SI_aeadDate !=''">
+	        SI_aeadDate,
+	       </if>
+	       <if test="activityInfo_isRead != null">
+	        activityInfo_isRead,
+	       </if>
+	       <if test="AI_aeadDate != null and AI_aeadDate !=''">
+	        AI_aeadDate,
+	       </if>
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides=",">
+	    
+	       <if test="mbSystemType != null and mbSystemType !=''">
+	        #{mbSystemType},
+	       </if>
+	       <if test="device_token != null and device_token !=''">
+	        #{device_token},
+	       </if>
+	       <if test="systemInfo_isRead != null ">
+	        #{systemInfo_isRead},
+	       </if>
+	       <if test="SI_aeadDate != null and SI_aeadDate !=''">
+	        #{SI_aeadDate},
+	       </if>
+	       <if test="activityInfo_isRead != null">
+	        #{activityInfo_isRead},
+	       </if>
+	       <if test="AI_aeadDate != null and AI_aeadDate !=''">
+	        #{AI_aeadDate},
+	       </if>
+	    </trim>
+	</insert>
+	<select id="selectSystemmessageDeviceStatus" resultType="int">
+	   select count(*) from systemmessageDeviceStatus
+	   <trim prefix="WHERE" prefixOverrides="AND">
+	      <if test=" device_token!=null ">
+	        and device_token=#{device_token}
+	      </if>
+	   </trim>
+	</select>
+</mapper>

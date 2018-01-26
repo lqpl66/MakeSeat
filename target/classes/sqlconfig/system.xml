@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yl.mapper.SystemMapper">
+    
+    <!-- 登录验证查询 -->
+	<select id="volidLogin" parameterType="Map" resultType="Map">
+		SELECT
+		admin.id adminId,adminCode,realName,adminPwd,admin.adminType,admin.uuid,
+		DATE_FORMAT(uuidExpiry, '%Y-%m-%d %H:%i:%s') as uuidExpiry,status,
+		mobile,adminName,roleId,role.`name` roleName,isDel FROM `admin`
+		LEFT JOIN
+		role on roleId= role.id
+		where admin.uuid=#{uuid} and  admin.adminType='1' and admin.status=1
+	</select>
+    <!-- 保存短信记录 -->
+    <insert id="saveLogRecord" parameterType="Map">
+		insert into
+		logrecord
+		(
+		mobile,
+		smsCode,
+		addTime,
+		smsPwdExpiry,
+		operateType
+		)
+		values
+		(
+		#{mobile,jdbcType=VARCHAR},
+		#{smsCode,jdbcType=VARCHAR},
+		STR_TO_DATE(#{addTime,jdbcType=DATE},
+		'%Y-%m-%d %H:%i:%s'),
+		STR_TO_DATE(#{smsPwdExpiry,jdbcType=DATE},
+		'%Y-%m-%d %H:%i:%s'),
+		#{operateType,jdbcType=INTEGER}
+		)
+	</insert> 
+	
+	<!-- 查询短信校验码 -->
+    <select id="selectLogRecord" parameterType="Map"  resultType="Map">
+    SELECT id,mobile,smsCode,addTime,DATE_FORMAT(smsPwdExpiry
+		,'%Y-%m-%d %H:%i:%s') smsPwdExpiry,operateType 
+		FROM `logrecord` 
+   	<trim prefix="WHERE" prefixOverrides="AND">
+		<if test="amount != null and amount !='' ">
+			mobile=#{amount}
+		</if>
+		<if test="operateType != null and operateType !='' ">
+			and operateType=#{operateType}
+		</if>
+   	</trim>
+    ORDER BY addTime desc 
+    limit 1
+    </select>
+    <!-- 查询省 -->
+    <select id="selectProvince" parameterType="Map"  resultType="Map">
+    SELECT * FROM `province`  
+	<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="provinceName != null and provinceName !='' ">
+				provinceName=#{provinceName}
+			</if>
+	   	</trim>
+    </select>
+    <!-- 查询市 -->
+    <select id="selectCity" parameterType="Map"  resultType="Map">
+    SELECT * FROM `city`  
+	<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="cityName != null and cityName !='' ">
+				and INSTR(cityName,#{cityName})
+			</if>
+			 
+	   	</trim>
+    </select>
+    <!-- 获取所有设备信息 -->
+	<select id="getAllDeviceInfo" parameterType="Map" resultType="Map">
+	    SELECT id,device_token,mbSystemType,operateId 
+	    FROM  pushmessagedevice ;
+
+	</select>
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yl.mapper.HelpMapper">
+    <!-- 查询 信息  -->
+    <select id="getFeedback" parameterType="Map"  resultType="Map">
+		SELECT fb.id,fb.userId,fb.type,fb.feedbackContent,DATE_FORMAT(fb.addTime, '%Y-%m-%d %H:%i:%s') addTime,fb.rebackId,fb.rebackContent
+        ,DATE_FORMAT(fb.rebackTime , '%Y-%m-%d %H:%i:%s') rebackTime,fb.remark,fb.isDel,fb.sort,
+        fb.feedbackTitle,fb.feedbackMobile
+        FROM `feedback`  fb 
+		LEFT JOIN employee em on fb.userId=em.id
+ 
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="uuid != null and uuid !='' ">
+				 em.uuid=#{uuid}
+			</if>
+			<if test="type != null and type !='' ">
+				and fb.type=#{type}
+			</if> 
+			<if test="searchContent != null and searchContent !='' ">
+				and instr(fb.feedbackTitle,#{searchContent}) 
+			</if> 
+		</trim>
+		and fb.isdel=0
+		<choose>  
+		    <when test="paramSidx !=null and paramSidx !=''   and  paramSord !=null and paramSord != '' ">
+		       ORDER BY ${paramSidx} ${paramSord} 
+		     </when> 
+		    <otherwise>  
+		      ORDER BY fb.sort asc,fb.addTime desc
+            </otherwise>  
+		</choose>
+		limit #{beginNum},#{pageSize} 
+    </select> 
+    <insert id="insertFeedback">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID() AS id
+		 </selectKey> 
+        insert into feedback
+        <trim  prefix="(" suffix=")"  suffixOverrides=",">
+           <if test="userId != null and userId !=''">
+		     userId,
+		  </if> 
+           <if test="type != null and type !=''">
+		     type,
+		  </if> 
+           <if test="feedbackTitle != null and feedbackTitle !=''">
+		     feedbackTitle,
+		  </if> 
+           <if test="feedbackContent != null and feedbackContent !=''">
+		     feedbackContent,
+		  </if> 
+           <if test="feedbackMobile != null and feedbackMobile !=''">
+		     feedbackMobile,
+		  </if> 
+           <if test="addTime != null and addTime !=''">
+		     addTime,
+		  </if> 
+           <if test="isDel != null and isDel !=''">
+		     isDel,
+		  </if> 
+           <if test="sort != null and sort !=''">
+		     sort,
+		  </if> 
+        </trim>
+        <trim  prefix="values (" suffix=")"  suffixOverrides=",">
+        
+           <if test="userId != null and userId !=''">
+		     #{userId},
+		  </if> 
+           <if test="type != null and type !=''">
+		     #{type},
+		  </if> 
+           <if test="feedbackTitle != null and feedbackTitle !=''">
+		     #{feedbackTitle},
+		  </if> 
+           <if test="feedbackContent != null and feedbackContent !=''">
+		     #{feedbackContent},
+		  </if> 
+           <if test="feedbackMobile != null and feedbackMobile !=''">
+		     #{feedbackMobile},
+		  </if> 
+           <if test="addTime != null and addTime !=''">
+		     #{addTime},
+		  </if> 
+           <if test="isDel != null and isDel !=''">
+		     #{isDel},
+		  </if> 
+           <if test="sort != null and sort !=''">
+		     #{sort},
+		  </if> 
+        </trim>
+    </insert>
+    <!-- 保存反馈图片 -->
+    <insert id="insertFeedbackImg" parameterType="java.util.List">
+       insert into feedbackImg(fdId,imgName) 
+       values
+	 <foreach collection="list" item="fb" index="index" separator=",">
+	      (#{fb.fdId},#{fb.imgName})
+	 </foreach> 
+    </insert>
+    
+    <select id="getVersion"  parameterType="Map" resultType="com.yl.bean.Version">
+    select * from version where  mbSystemType =#{mbSystemType}
+    order by id desc
+    </select>
+</mapper>

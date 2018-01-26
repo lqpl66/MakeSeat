@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" name="viewport" />
+    <script src="JS/jquery-1.7.2.js"></script>
+    <script src="JS/zui-1.7.0-dist/dist/js/zui.min.js"></script>
+    <script src="dialog/lhgdialog.js?self=false&skin=mac"></script>
+    <link href="JS/zui-1.7.0-dist/dist/css/zui.min.css" rel="stylesheet" />
+    <link href="CSS/main.css" rel="stylesheet" />
+    <style type="text/css">
+    *{color: #000}
+     .paddingLeft{padding-left: 0px ;padding-bottom: 15px;padding-right: 15px;padding-top: 15px;}
+    </style>
+    <script>
+        $(function () {
+
+            //获取当前网址，如： http://localhost:8083/uimcardprj/share/meun.jsp
+            var curWwwPath=window.document.location.href;
+           //获取主机地址之后的目录，如： uimcardprj/share/meun.jsp
+            var pathName=window.document.location.pathname;
+             var pos=curWwwPath.indexOf(pathName);
+            //获取主机地址，如： http://localhost:8083
+              var localhostPaht=curWwwPath.substring(0,pos);  
+            //获取带"/"的项目名，如：/uimcardprj
+            var projectName=pathName.substring(0,pathName.substr(1).indexOf('/')+1); 
+           // alert(curWwwPath.substring(0,curWwwPath.indexOf("/",10))+projectName);
+            
+        	/* alert(curWwwPath +" : "+pathName +" _ "+pos+" _ "+projectName);  */
+        	
+            var projectUrl=curWwwPath.substring(0,curWwwPath.indexOf("/",10))+projectName;
+            
+            var dataStr=encodeURI(JSON.stringify({ 
+				'rows' : "100", 
+				'page' : "1"
+			})); 
+            $.ajax({
+				type:"POST",
+				url: projectName+"/help/getFeedback",
+				data: dataStr, 
+				cache:true,
+				dataType:"json",
+				success:function(data){ 
+					var json=eval(data);
+					var code=json.code;
+					var msg=json.msg;
+					var data=json.data;
+					
+					if(code=="0001"){
+						//绘制列表
+						for(var i=0,j=data.length;i<j;i++){
+						 
+							var htmlTemplate="";
+							htmlTemplate+='<div class="panel panel-default">';
+							htmlTemplate+='<div onclick="openInfo(this)" class="panel-heading" id="heading'+i+'" data-toggle="collapse" href="#collapse'+i+'" data-parent="#accordionPanels">';
+							htmlTemplate+='<div class="panel-title">';
+							htmlTemplate+='<div class="collapsed" >';
+							htmlTemplate+=data[i].feedbackTitle;
+							htmlTemplate+='</div>';
+							/* htmlTemplate+=' <i class="icon icon-angle-right" ></i>';
+							 */ 
+							htmlTemplate+='</div>';
+							htmlTemplate+='</div>'; 
+							htmlTemplate+='<div id="collapse'+i+'" class="panel-collapse collapse">';
+							htmlTemplate+=' <div class="panel-body paddingLeft"> ';
+							htmlTemplate+=data[i].feedbackContent;
+							htmlTemplate+='</div>';
+							htmlTemplate+='</div>';
+							htmlTemplate+='</div>';
+							
+							$(".panel-group").append(htmlTemplate);
+						}
+					}else{
+			              $.dialog.tips(msg,2,"32X32/fail.png"); 
+					}
+				}});
+        }) 
+    </script>
+</head>
+<body>
+    <div style="width:100%">
+        <div class="helpTitle">
+            <span>热点问题</span>
+        </div>
+        <div class="panel-group" id="accordionPanels" aria-multiselectable="true">
+          <!--   <div class="panel panel-default">
+                <div class="panel-heading" id="headingOne" data-toggle="collapse" href="#collapseOne" data-parent="#accordionPanels">
+                    <div class="panel-title">
+                        <div class="collapsed">
+                            折叠面板 1
+                        </div>
+                        <i class="icon icon-angle-right"></i>
+                    </div>
+                    
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse">
+                    <div class="panel-body">折叠面板内容 折叠面板内容折叠面板内容折叠面板内容折叠面板内容折叠面板内容折叠面板内容折叠面板内容折叠面板内容折叠面板内容折叠面板内容</div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading" id="headingTwo" data-toggle="collapse"  href="#collapseTwo"  data-parent="#accordionPanels">
+                    <div class="panel-title">
+                        <div class="collapsed">
+                            折叠面板 2
+                        </div>
+                        <i class="icon icon-angle-right"></i>
+                    </div>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse">
+                    <div class="panel-body">折叠面板内容 2</div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading" id="headingThree" data-toggle="collapse" href="#collapseThree" data-parent="#accordionPanels" >
+                    <div class="panel-title">
+                        <div class="collapsed" >
+                            折叠面板 3
+                        </div>
+                        <i class="icon icon-angle-right"></i>
+                    </div>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse">
+                    <div class="panel-body">折叠面板内容 3</div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+    <script>
+    function openInfo(obj){
+    	 if ($(obj).children().children().next().attr("class").indexOf("icon-angle-right") > 0) {
+             $('.icon-angle-down').addClass("icon-angle-right");
+             $('.icon-angle-down').removeClass("icon-angle-down");
+             $(obj).children().children().next().removeClass("icon-angle-right");
+             $(obj).children().children().next().addClass("icon-angle-down");
+         } else {
+             $(obj).children().children().next().addClass("icon-angle-right");
+             $(obj).children().children().next().removeClass("icon-angle-down");
+         }
+    }
+    </script>
+</body>
+</html>

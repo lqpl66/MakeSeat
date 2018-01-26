@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc  
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd"
+	default-autowire="byName">
+	<context:component-scan base-package="com.yl" />
+	<!-- Scheduler：代表一个Quartz的独立运行容器， Trigger和JobDetail要注册到Scheduler中才会生效， 也就是让调度器知道有哪些触发器和任务， 
+		才能进行按规则进行调度任务。 -->
+	<!-- 总调度用于启动Spring定时器 -->
+	<bean name="startQuertz" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="cronTrigger" />
+				<!-- <ref bean="simpleTrigger" /> -->
+			</list>
+		</property>
+	</bean>
+	<!-- 主要有三个核心概念：调度器、任务和触发器。 三者关系简单来说就是， 调度器负责调度各个任务，到了某个时刻或者过了一定时间，触发器触动了，特定任务便启动执行。 
+		概念相对应的类和接口有： -->
+
+	<!-- JobDetail：望文生义就是描述任务的相关情况； -->
+
+	<!-- Trigger：描述出发Job执行的时间触发规则。 有SimpleTrigger和CronTrigger两个子类代表两种方式， 一种是每隔多少分钟小时执行，则用SimpleTrigger； 
+		另一种是日历相关的重复时间间隔， 如每天凌晨，每周星期一运行的话，通过Cron表达式便可定义出复杂的调度方案。 -->
+	<!-- simpleTrigger实现方式 间隔时间 -->
+	<bean id="pushMessageForLine" class="com.yl.Quartz.PushMessageForLine">
+	</bean>
+	<bean id="jobDetail"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="pushMessageForLine" />
+		<property name="targetMethod" value="doIt" />
+		<property name="concurrent" value="false" />
+	</bean>
+
+<!-- 	<bean id="simpleTrigger" -->
+<!-- 	class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"> -->
+<!-- 	<property name="jobDetail" ref="jobDetail" /> -->
+<!-- 	<property name="startDelay" value="0" /> -->
+	<!-- repeat every 120 seconds -->
+<!-- 	<property name="repeatInterval" value="90000" /> -->
+<!-- 	</bean> -->
+
+
+	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="jobDetail" />
+		<property name="cronExpression" value="0 9 10 * * ?"></property>
+	</bean>
+
+</beans>

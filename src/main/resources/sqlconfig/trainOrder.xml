@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- DATE_FORMAT -->
+<!-- 时间转字符串：date_format -->
+<!-- 字符串转时间：str_to_date -->
+<!-- DATE_FORMAT(tcb.check_begin_date, '%Y-%m-%d') -->
+<!-- birthday格式：%Y-%m-%d -->
+<!-- 其他时间格式：- %Y-%m-%d %H:%i:%s -->
+<mapper namespace="com.yl.mapper.TrainOrderMapper">
+	<insert id="saveOrderBuy" parameterType="Map" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into `orderBuy`
+		(
+		employeeId,
+		trainId,
+		startStationId,
+		endStationId,
+		carriageNum,
+		orderBuyNo,
+		trainCode,
+		trainNo,
+		startStationName,
+		startStationCode,
+		endStationName,
+		endStationCode,
+		price,
+		trainDate
+		)
+		values
+		(
+		#{employeeId,jdbcType=INTEGER},
+		#{trainId,jdbcType=INTEGER},
+		#{startStationId,jdbcType=INTEGER},
+		#{endStationId,jdbcType=INTEGER},
+		#{carriageNum,jdbcType=INTEGER},
+		#{orderBuyNo,jdbcType=VARCHAR},
+		#{trainCode,jdbcType=VARCHAR},
+		#{trainNo,jdbcType=VARCHAR},
+		#{startStationName,jdbcType=VARCHAR},
+		#{startStationCode,jdbcType=VARCHAR},
+		#{endStationName,jdbcType=VARCHAR},
+		#{endStationCode,jdbcType=VARCHAR},
+		#{price,jdbcType=DECIMAL},
+		STR_TO_DATE(#{trainDate,jdbcType=DATE},
+		'%Y-%m-%d')
+		)
+	</insert>
+
+	<update id="updateOrderBuy" parameterType="Map">
+		update `orderBuy`
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="isClose !=null ">
+				isClose = #{isClose},
+			</if>
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="employeeId !=null ">
+				employeeId = #{employeeId}
+			</if>
+			<if test="orderBuyNo !=null ">
+				AND orderBuyNo = #{orderBuyNo}
+			</if>
+			<if test="update !=null ">
+				AND TO_DAYS(addTime) &lt; TO_DAYS(NOW())
+			</if>
+			<if test="close !=null ">
+				AND TO_DAYS(trainDate) &lt; TO_DAYS(NOW())
+			</if>
+		</trim>
+	</update>
+
+	<insert id="saveOrderBuyStation" parameterType="Map"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into `orderBuyStation`
+		(
+		orderBuyNo,
+		stationId,
+		stationName,
+		stationCode
+		)
+		values
+		(
+		#{orderBuyNo,jdbcType=VARCHAR},
+		#{stationId,jdbcType=INTEGER},
+		#{stationName,jdbcType=VARCHAR},
+		#{stationCode,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<insert id="insertOrderBuyStation" parameterType="java.util.List">
+		insert into orderBuyStation (orderBuyNo,
+		stationId,stationName,stationCode)
+		values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.orderBuyNo,jdbcType=VARCHAR},
+			#{item.stationId,jdbcType=INTEGER},#{item.stationName,jdbcType=VARCHAR},
+			#{item.stationCode,jdbcType=VARCHAR}
+			)
+		</foreach>
+	</insert>
+	<select id="getOrderBuyInfo" resultType="com.yl.bean.OrderBuyInfo"
+		parameterType="Map">
+		select
+		ob.employeeId,
+		ob.orderBuyNo,
+		ob.trainId,
+		ob.trainCode,
+		ob.trainNo,
+		ob.trainDate,
+		ob.startStationId,
+		ob.startStationName,
+		ob.startStationCode,
+		ob.endStationId,
+		ob.endStationName,
+		ob.endStationCode,
+		ob.carriageNum,
+		ob.price,
+		ob.isClose,
+		DATE_FORMAT(ob.addTime, '%Y-%m-%d %H:%i:%s') as addTime,
+		ep.employeeCode,
+		ep.nickName,
+		ep.headImg,
+		A.trainNum,
+		ep.idCardAuthentication
+		from
+		orderBuy ob
+		left join
+		employee ep on
+		ep.id =ob.employeeId
+		left join
+		(select count(*) as
+		trainNum,obs.orderBuyNo from orderBuyStation obs
+		inner join orderBuy
+		on obs.orderBuyNo = orderBuy.orderBuyNo
+		GROUP BY
+		orderBuyNo
+		)
+		A on
+		A.orderBuyNo =
+		ob.orderBuyNo
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="orderBuyNo != null and orderBuyNo !=''">
+				ob.orderBuyNo = #{orderBuyNo}
+			</if>
+			<if test="employeeId != null ">
+				AND ob.employeeId = #{employeeId}
+			</if>
+			<if test="isClose != null ">
+				AND ob.isClose = #{isClose}
+			</if>
+		</trim>
+		order by ob.addTime desc
+		<choose>
+			<when test="start != null and num !=null">
+				limit #{start}, #{num}
+			</when>
+			<otherwise>
+				limit 1
+			</otherwise>
+		</choose>
+
+	</select>
+
+	<select id="getOrderBuyForSearch" resultType="com.yl.bean.OrderBuyInfo"
+		parameterType="Map">
+		select a.*
+		,b.trainNum,ep.employeeCode,ep.headImg,ep.idCardAuthentication from (
+		select
+		max(orderBuyNo) as
+		orn,count(*)
+		as num ,tab2.* from (
+		SELECT
+		tab1.*,FIND_IN_SET(stationName,#{stationName}) as fin1 FROM
+		(
+		select
+		`orderBuy`.*,orderBuyStation.id as id1,orderBuyStation.stationName
+		from `orderBuy` INNER JOIN orderBuyStation
+		ON
+		`orderBuy`.orderBuyNo=orderBuyStation.orderBuyNo ) as tab1
+		) as tab2
+		where fin1 != 0 GROUP BY orderBuyNo
+		)a left join (select count(*) as
+		trainNum,obs.orderBuyNo from orderBuyStation obs inner join orderBuy
+		on obs.orderBuyNo = orderBuy.orderBuyNo
+		GROUP BY orderBuyNo
+		)
+		b on
+		b.orderBuyNo =
+		a.orderBuyNo
+		left join
+		employee ep on
+		ep.id
+		=a.employeeId
+		<trim prefix="WHERE" prefixOverrides="AND">
+			a.isClose = 0
+			and num>1
+			<if test="train_no!=null">
+				and a.trainNo = #{train_no}
+			</if>
+			<if test="trainDate !=null">
+				and a.trainDate = #{trainDate}
+			</if>
+		</trim>
+		<if test="type !=null and type != '' ">
+			<choose>
+				<when test="type == '1'.toString() ">
+					ORDER BY a.addTime desc
+				</when>
+				<when test="type == '2'.toString() ">
+					ORDER BY a.num desc
+				</when>
+				<when test="type == '3'.toString() ">
+					ORDER BY a.price desc
+				</when>
+				<when test="type == '4'.toString() ">
+					ORDER BY a.addTime asc
+				</when>
+				<when test="type == '5'.toString() ">
+					ORDER BY a.num asc
+				</when>
+				<when test="type == '6'.toString() ">
+					ORDER BY a.price asc
+				</when>
+			</choose>
+		</if>
+		<choose>
+			<when test="start != null and num!=null">
+				limit #{start}, #{num}
+			</when>
+			<otherwise>
+				limit 1
+			</otherwise>
+		</choose>
+
+	</select>
+
+	<insert id="saveOrderSell" parameterType="Map" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into `orderSell`
+		(
+		orderSellNo,
+		employeeId,
+		trainId,
+		trainCode,
+		trainNo,
+		trainDate,
+		startStationId,
+		startStationName,
+		startStationCode,
+		endStationId,
+		endStationName,
+		endStationCode,
+		seatName,
+		carriageNum,
+		price,
+		isSplit,
+		isAssign,
+		assignAmount,
+		loseTime
+		)
+		values
+		(
+		#{orderSellNo,jdbcType=VARCHAR},
+		#{employeeId,jdbcType=INTEGER},
+		#{trainId,jdbcType=INTEGER},
+		#{trainCode,jdbcType=VARCHAR},
+		#{trainNo,jdbcType=VARCHAR},
+		STR_TO_DATE(#{trainDate,jdbcType=DATE},
+		'%Y-%m-%d'),
+		#{startStationId,jdbcType=INTEGER},
+		#{startStationName,jdbcType=VARCHAR},
+		#{startStationCode,jdbcType=VARCHAR},
+		#{endStationId,jdbcType=INTEGER},
+		#{endStationName,jdbcType=VARCHAR},
+		#{endStationCode,jdbcType=VARCHAR},
+		#{seatName,jdbcType=VARCHAR},
+		#{carriageNum,jdbcType=INTEGER},
+		#{price,jdbcType=DECIMAL},
+		#{isSplit,jdbcType=INTEGER},
+		#{isAssign,jdbcType=INTEGER},
+		#{assignAmount,jdbcType=VARCHAR},
+		STR_TO_DATE(#{loseTime,jdbcType=DATE},
+		'%Y-%m-%d %H:%i:%s')
+		)
+	</insert>
+
+	<update id="updateOrderSell" parameterType="Map">
+		update `orderSell`
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="isClose1 !=null ">
+				isClose = #{isClose1},
+			</if>
+			<if test="isAssign1 !=null ">
+				isAssign = #{isAssign1},
+			</if>
+			<if test="assignAmount !=null ">
+				assignAmount = #{assignAmount},
+			</if>
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="employeeId !=null ">
+				employeeId = #{employeeId}
+			</if>
+			<if test="orderSellNo !=null ">
+				AND orderSellNo = #{orderSellNo}
+			</if>
+			<if test="update !=null ">
+				AND TO_DAYS(addTime) &lt; TO_DAYS(NOW())
+			</if>
+		</trim>
+	</update>
+
+	<update id="updateOrderSellStation" parameterType="Map">
+		update `orderSellStation`
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="isSell !=null ">
+				isSell = #{isSell},
+			</if>
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="id !=null ">
+				id = #{id}
+			</if>
+			<if test="orderSellNo !=null ">
+				AND orderSellNo = #{orderSellNo}
+			</if>
+			<if test="stationIdStr !=null and stationIdStr != '' ">
+			and id in
+				<foreach collection="stationIdStr" item="sId" index="index"
+					open="(" separator="," close=")">
+					#{sId}
+				</foreach>
+			</if>
+		</trim>
+	</update>
+
+	<insert id="insertOrderSellStation" parameterType="java.util.List">
+		insert into orderSellStation (
+		orderSellNo,
+		fromStationId,
+		fromStationName,
+		fromStationCode,
+		isSell,
+		toStationId,
+		toStationName,
+		toStationCode,
+		diffrentDay,
+		startTime,
+		arriveTime
+		)
+		values
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(#{item.orderSellNo,jdbcType=VARCHAR},
+			#{item.fromStationId,jdbcType=INTEGER},
+			#{item.fromStationName,jdbcType=VARCHAR},
+			#{item.fromStationCode,jdbcType=VARCHAR},
+			#{item.isSell,jdbcType=INTEGER},
+			#{item.toStationId,jdbcType=INTEGER},
+			#{item.toStationName,jdbcType=VARCHAR},
+			#{item.toStationCode,jdbcType=VARCHAR},
+			#{item.diffrentDay,jdbcType=INTEGER},
+			STR_TO_DATE(#{item.startTime,jdbcType=TIME},
+			'%H:%i'),
+			STR_TO_DATE(#{item.arriveTime,jdbcType=TIME},
+			'%H:%i')
+			)
+		</foreach>
+	</insert>
+
+	<select id="getOrderSellInfo" resultType="com.yl.bean.OrderSellInfo"
+		parameterType="Map">
+		select
+		os.employeeId,
+		os.orderSellNo,
+		os.trainId,
+		os.trainCode,
+		os.trainNo,
+		os.trainDate,
+		os.startStationId,
+		os.startStationName,
+		os.startStationCode,
+		os.endStationId,
+		os.endStationName,
+		os.endStationCode,
+		os.carriageNum,
+		os.seatName,
+		os.loseTime,
+		os.isSplit,
+		os.isAssign,
+		os.assignAmount,
+		os.price,
+		os.isClose,
+		DATE_FORMAT(os.addTime, '%Y-%m-%d %H:%i:%s') as
+		addTime,
+		ep.employeeCode,
+		ep.nickName,
+		ep.headImg,
+		b.trainNum,
+		A.num,
+		ep.idCardAuthentication
+		from
+		orderSell os
+		left join
+		employee ep on
+		ep.id
+		=os.employeeId
+		left join
+		(select count(*) as
+		num,oss.orderSellNo from
+		orderSellStation oss
+		inner
+		join orderSell
+		on oss.orderSellNo =
+		orderSell.orderSellNo
+		where
+		oss.isSell = 0
+		GROUP BY
+		orderSellNo
+		)
+		A on
+		A.orderSellNo =
+		os.orderSellNo
+		left join (select count(*) as
+		trainNum,oss1.orderSellNo from
+		orderSellStation oss1
+		inner join
+		orderSell
+		on oss1.orderSellNo =
+		orderSell.orderSellNo
+		GROUP BY
+		orderSellNo
+		)
+		b on
+		b.orderSellNo =
+		os.orderSellNo
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="orderSellNo != null and orderSellNo !=''">
+				os.orderSellNo = #{orderSellNo}
+			</if>
+			<if test="employeeId != null ">
+				AND os.employeeId = #{employeeId}
+			</if>
+			<if test="isClose != null ">
+				AND os.isClose = #{isClose}
+			</if>
+		</trim>
+		order by os.addTime desc
+		<choose>
+			<when test="start != null and num !=null">
+				limit #{start}, #{num}
+			</when>
+			<otherwise>
+				limit 1
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="getOrderSellForSearch" resultType="com.yl.bean.OrderSellInfo"
+		parameterType="Map">
+		select a.*
+		,b.trainNum,ep.employeeCode,ep.headImg,ep.idCardAuthentication from (
+		select
+		max(orderSellNo) as
+		orn,count(*)
+		as num ,tab2.* from (
+		SELECT
+		tab1.*,FIND_IN_SET(stationName,#{stationName}) as fin1 FROM
+		(
+		select
+		`orderSell`.*,orderSellStation.id as
+		id1,CONCAT(orderSellStation.fromStationName,'-',orderSellStation.toStationName)
+		as stationName
+		from `orderSell` INNER JOIN orderSellStation
+		ON
+		`orderSell`.orderSellNo=orderSellStation.orderSellNo
+		where
+		orderSellStation.isSell =0 ) as tab1
+		) as
+		tab2
+		where fin1 != 0 GROUP BY
+		orderSellNo
+		)a left join (select count(*)
+		as
+		trainNum,obs.orderSellNo
+		from orderSellStation obs inner join
+		orderSell
+		on obs.orderSellNo =
+		orderSell.orderSellNo
+		GROUP BY
+		orderSellNo
+		)
+		b on
+		b.orderSellNo =
+		a.orderSellNo
+		left
+		join
+		employee
+		ep on
+		ep.id
+		=a.employeeId
+		<trim prefix="WHERE" prefixOverrides="AND">
+			a.isClose = 0
+			and a.isAssign
+			=1
+			<if test="train_no!=null">
+				and trainNo = #{train_no}
+			</if>
+			<if test="trainDate !=null">
+				and trainDate = #{trainDate}
+			</if>
+		</trim>
+		<if test="type !=null and type != '' ">
+			<choose>
+				<when test="type == '0'.toString() ">
+					ORDER BY a.num,a.isSplit desc, a.price,a.carriageNum
+					asc
+				</when>
+				<when test="type == '1'.toString() ">
+					ORDER BY a.carriageNum desc
+				</when>
+				<when test="type == '2'.toString() ">
+					ORDER BY a.num desc
+				</when>
+				<when test="type == '3'.toString() ">
+					ORDER BY a.price desc
+				</when>
+				<when test="type == '4'.toString() ">
+					ORDER BY a.carriageNum asc
+				</when>
+				<when test="type == '5'.toString() ">
+					ORDER BY a.num asc
+				</when>
+				<when test="type == '6'.toString() ">
+					ORDER BY a.price asc
+				</when>
+			</choose>
+		</if>
+		<choose>
+			<when test="start != null and num!=null">
+				limit #{start}, #{num}
+			</when>
+			<otherwise>
+				limit 1
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="getOrderSellStation" resultType="com.yl.bean.OrderSellStation"
+		parameterType="Map">
+		select * from orderSellStation
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="orderSellNo !=null ">
+				orderSellNo = #{orderSellNo}
+			</if>
+			<if test="id !=null ">
+				ANd id = #{id}
+			</if>
+			order by id asc
+		</trim>
+	</select>
+
+	<select id="checkOrderSell" resultType="com.yl.bean.OrderSellInfo"
+		parameterType="Map">
+		select a.*
+		,b.trainNum,ep.employeeCode,ep.headImg,ep.idCardAuthentication from (
+		select
+		max(orderSellNo) as
+		orn,count(*)
+		as num ,tab2.* from (
+		SELECT
+		tab1.*,FIND_IN_SET(stationName,#{stationName}) as fin1 FROM
+		(
+		select
+		`orderSell`.*,orderSellStation.id as
+		id1,CONCAT(orderSellStation.fromStationName,'-',orderSellStation.toStationName)
+		as stationName
+		from `orderSell` INNER JOIN orderSellStation
+		ON
+		`orderSell`.orderSellNo=orderSellStation.orderSellNo
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="isSell != null ">
+				orderSellStation.isSell = #{isSell}
+			</if>
+		</trim>
+		) as tab1
+		) as
+		tab2
+		where fin1 != 0 GROUP BY orderSellNo
+		)a left join
+		(select count(*)
+		as
+		trainNum,obs.orderSellNo from orderSellStation obs
+		inner join
+		orderSell
+		on obs.orderSellNo = orderSell.orderSellNo
+		GROUP BY
+		orderSellNo
+		)
+		b on
+		b.orderSellNo =
+		a.orderSellNo
+		left
+		join
+		employee
+		ep on
+		ep.id
+		=a.employeeId
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="trainDate != null and trainDate !=''">
+				a.trainDate = #{trainDate}
+			</if>
+			<if test="employeeId != null ">
+				AND a.employeeId = #{employeeId}
+			</if>
+			<if test="trainNo != null and trainNo !=''">
+				AND a.trainNo = #{trainNo}
+			</if>
+			<if test="seatName != null and seatName !=''">
+				AND a.seatName = #{seatName}
+			</if>
+			<if test="carriageNum != null ">
+				AND a.carriageNum = #{carriageNum}
+			</if>
+			<if test="isClose != null ">
+				AND a.isClose = #{isClose}
+			</if>
+		</trim>
+	</select>
+
+	<select id="getOrder" resultType="com.yl.bean.Order"
+		parameterType="Map">
+		select o.*,
+		os.trainCode,
+		os.trainNo,
+		os.trainDate,
+		os.startStationName,
+		os.endStationName,
+		os.seatName,
+		os.carriageNum,
+		os.employeeId sellEmployeeId,
+		sep.employeeCode sellEmployeeCode,
+		ep.employeeCode,
+		ep.nickName,
+		b.trainNum,
+		ep.idCardAuthentication,
+		ep.headImg,
+		os.price
+		from
+		`order` o
+		left join
+		orderSell os on
+		os.orderSellNo = o.orderSellNo
+		left
+		join (select count(*)
+		as
+		trainNum,ors.orderNo from orderStation
+		ors inner
+		join
+		`order`
+		on
+		ors.orderNo = `order`.orderNo
+		GROUP BY
+		ors.orderNo
+		)
+		b on
+		b.orderNo =
+		o.orderNo
+		left
+		join
+		employee
+		ep on
+		ep.id
+		=o.employeeId
+			left
+		join
+		employee
+		sep on
+		sep.id
+		=os.employeeId
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="orderNo !=null ">
+				o.orderNo = #{orderNo}
+			</if>
+			<if test="tradeNo !=null ">
+				o.orderNo = #{tradeNo}
+			</if>
+			<if test="employeeId !=null ">
+				AND o.employeeId = #{employeeId}
+			</if>
+			<if test="orderSellNo !=null ">
+				AND o.orderSellNo = #{orderSellNo}
+			</if>
+			order by o.addTime desc
+		</trim>
+		<choose>
+			<when test="start != null and num!=null">
+				limit #{start}, #{num}
+			</when>
+			<otherwise>
+				limit 1
+			</otherwise>
+		</choose>
+	</select>
+	<select id="getOrderStation" resultType="com.yl.bean.OrderStation"
+		parameterType="Map">
+		select
+		a.orderNo,
+		a.sellStationId,
+		b.orderSellNo,
+		b.fromStationName,
+		b.isSell,
+		b.toStationName,
+		b.toStationCode
+		from orderStation a
+		left join
+		orderSellStation b
+		on b.id = a.sellStationId
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="orderNo !=null ">
+				a.orderNo = #{orderNo}
+			</if>
+			order by a.id asc
+		</trim>
+	</select>
+
+	<insert id="saveOrder" parameterType="Map" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into `order`
+		(
+		orderNo,
+		orderSellNo,
+		employeeId,
+		state,
+		acount,
+		loseTime
+		)
+		values
+		(
+		#{orderNo,jdbcType=VARCHAR},
+		#{orderSellNo,jdbcType=VARCHAR},
+		#{employeeId,jdbcType=INTEGER},
+		#{state,jdbcType=INTEGER},
+		#{acount,jdbcType=DECIMAL},
+		STR_TO_DATE(#{loseTime,jdbcType=DATE},
+		'%Y-%m-%d %H:%i:%s')
+		)
+	</insert>
+
+	<update id="updateOrder" parameterType="Map">
+		update `order`
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="state1 !=null ">
+				state = #{state1},
+			</if>
+		</trim>
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="id !=null ">
+				id = #{id}
+			</if>
+			<if test="orderNo !=null ">
+				AND orderNo = #{orderNo}
+			</if>
+			<if test="employeeId !=null ">
+				AND employeeId = #{employeeId}
+			</if>
+		</trim>
+	</update>
+
+	<insert id="saveOrderStation" parameterType="Map"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into `orderStation`
+		(
+		orderNo,
+		sellStationId
+		)
+		values
+		(
+		#{orderNo,jdbcType=VARCHAR},
+		#{sellStationId,jdbcType=INTEGER}
+		)
+	</insert>
+	<select id="getOrderSellForMain" resultType="com.yl.bean.OrderSellInfo"
+		parameterType="Map">
+		select a.*
+		,b.trainNum from orderSell a
+		left join (select count(*)
+		as
+		trainNum,obs.orderSellNo
+		from orderSellStation
+		obs inner join
+		orderSell
+		on obs.orderSellNo =
+		orderSell.orderSellNo
+		GROUP
+		BY
+		orderSellNo
+		)
+		b on
+		b.orderSellNo =
+		a.orderSellNo
+	   left join (select count(*)
+		as
+		num,obs.orderSellNo
+		from orderSellStation
+		obs inner join
+		orderSell
+		on obs.orderSellNo =
+		orderSell.orderSellNo
+		where obs.isSell =0
+		GROUP
+		BY
+		orderSellNo
+		)
+		c on
+		c.orderSellNo =
+		a.orderSellNo
+		<trim prefix="WHERE" prefixOverrides="AND">
+			a.isClose = 0
+			and a.isAssign =1
+			and num>0
+			<if test="cityName !=null ">
+				AND INSTR(a.startStationName,#{cityName})
+			</if>
+		</trim>
+		ORDER BY a.addTime desc
+		limit 6
+	</select>
+
+	<select id="getOrderTradeInfo" resultType="com.yl.bean.OrderTrade"
+		parameterType="Map">
+		select
+		os.orderSellNo,
+		os.trainCode,
+		os.trainDate,
+		os.startStationName,
+		os.endStationName,
+		os.carriageNum,
+		os.seatName,
+		o.orderNo,
+		o.acount,
+		o.state,
+		DATE_FORMAT(o.addTime, '%Y-%m-%d %H:%i:%s') as
+		addTime,
+		o.employeeId as buyUserId,
+		CONCAT(os.startStationName,'-',os.endStationName) as site,
+		os.employeeId as SellUserId
+		from
+		`order` o
+		left join orderSell os on
+		o.orderSellNo = os.orderSellNo
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="orderSellNo != null and orderSellNo !=''">
+				os.orderSellNo = #{orderSellNo}
+			</if>
+			<if test="employeeId != null ">
+				AND os.employeeId = #{employeeId}
+			</if>
+			<if test="userId != null ">
+				AND o.employeeId = #{userId}
+			</if>
+			<if test="orderNo != null and orderNo !=''">
+				AND o.orderNo = #{orderNo}
+			</if>
+			AND os.isClose != 2
+			AND o.state = 2
+			AND TO_DAYS(os.trainDate)
+			=TO_DAYS(NOW())
+		</trim>
+		order by o.addTime desc
+	</select>
+	<select id="getOrderCloseTradeInfo" resultType="com.yl.bean.OrderTrade"
+		parameterType="Map">
+		select
+		os.orderSellNo,
+		os.trainCode,
+		os.trainDate,
+		os.startStationName,
+		os.endStationName,
+		os.carriageNum,
+		os.seatName,
+		o.orderNo,
+		o.state,
+		o.acount,
+		DATE_FORMAT(o.addTime, '%Y-%m-%d %H:%i:%s') as
+		addTime,
+		o.employeeId as
+		buyUserId,
+		CONCAT(os.startStationName,'-',os.endStationName) as site,
+		os.employeeId as SellUserId
+		from
+		`order` o
+		right join orderSell os on
+		o.orderSellNo = os.orderSellNo
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="orderSellNo != null and orderSellNo !=''">
+				os.orderSellNo = #{orderSellNo}
+			</if>
+			<if test="employeeId != null ">
+				AND os.employeeId = #{employeeId}
+			</if>
+			<if test="userId != null ">
+				AND o.employeeId = #{userId}
+			</if>
+			<if test="orderNo != null and orderNo !=''">
+				AND o.orderNo = #{orderNo}
+			</if>
+			AND os.isClose != 2
+			AND TO_DAYS(os.trainDate)
+			&lt;TO_DAYS(NOW())
+		</trim>
+		<if test="type!=null and type !=''">
+			group by os.orderSellNo
+		</if>
+	</select>
+
+<select id="getOrderRefund" resultType="java.lang.Integer"
+		parameterType="Map">
+		select  count(*)
+		from
+		`order` o
+		<trim prefix="WHERE" prefixOverrides="AND">
+			<if test="employeeId !=null ">
+				 o.employeeId = #{employeeId}
+			</if>	
+				AND o.state = 7
+				AND TO_DAYS(o.addTime) = TO_DAYS(NOW())
+	    		order by o.addTime desc
+			</trim>
+	</select>
+
+</mapper>
